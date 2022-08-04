@@ -15,10 +15,22 @@ import { theme } from "./color";
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
+  const [todos, setTodos] = useState({});
   const meeting = () => setWorking(false);
   const work = () => setWorking(true);
   const onChangeText = (payload) => setText(payload);
-
+  const addTodo = () => {
+    if (text === "") {
+      return;
+    }
+    //save Todo
+    const newTodos = Object.assign({}, todos, {
+      [Date.now()]: { text, work: working },
+    });
+    setTodos(newTodos);
+    setText("");
+  };
+  console.log(todos);
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -43,9 +55,10 @@ export default function App() {
       </View>
       <View>
         <TextInput
+          onSubmitEditing={addTodo}
           onChangeText={onChangeText}
           value={text}
-          returnKeyType="send"
+          returnKeyType="done"
           placeholder={working ? "Add a To Do" : "Add a Meeting"}
           style={styles.input}
         />
