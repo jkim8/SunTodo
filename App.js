@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,15 +12,28 @@ import {
   ScrollView,
 } from "react-native";
 import { theme } from "./color";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+const STORAGE_KEY = "@todos";
 
 export default function App() {
   const [working, setWorking] = useState(true);
   const [text, setText] = useState("");
   const [todos, setTodos] = useState({});
+  useEffect(() => {
+    loadTodos();
+  });
   const meeting = () => setWorking(false);
   const work = () => setWorking(true);
   const onChangeText = (payload) => setText(payload);
-  const addTodo = () => {
+  const saveTodos = async (toSave) => {
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  };
+  const loadTodos = async () => {
+    const s = await AsyncStorage.getItem(STORAGE_KEY);
+    setTodos(JSON.parse(s));
+  };
+
+  const addTodo = async () => {
     if (text === "") {
       return;
     }
@@ -28,14 +41,14 @@ export default function App() {
     // const newTodos = Object.assign({}, todos, {
     //   [Date.now()]: { text, work: working },
     // });
-    const newTodos = { ...todos, [Date.now()]: { text, work: working } };
+    const newTodos = { ...todos, [Date.now()]: { text, working } };
     setTodos(newTodos);
+    await saveTodos(newTodos);
     setText("");
   };
-  console.log(todos);
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
+      <StatusBar style="light" />
       <View style={styles.header}>
         <TouchableOpacity onPress={work}>
           <Text
@@ -65,11 +78,13 @@ export default function App() {
           style={styles.input}
         />
         <ScrollView>
-          {Object.keys(todos).map((key) => (
-            <View style={styles.todo} key={key}>
-              <Text style={styles.todoText}>{todos[key].text}</Text>
-            </View>
-          ))}
+          {Object.keys(todos).map((key) =>
+            todos[key].working === working ? (
+              <View style={styles.todo} key={key}>
+                <Text style={styles.todoText}>{todos[key].text}</Text>
+              </View>
+            ) : null
+          )}
         </ScrollView>
       </View>
     </View>
