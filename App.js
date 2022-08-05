@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   Pressable,
   TextInput,
+  ScrollView,
 } from "react-native";
 import { theme } from "./color";
 
@@ -24,9 +25,10 @@ export default function App() {
       return;
     }
     //save Todo
-    const newTodos = Object.assign({}, todos, {
-      [Date.now()]: { text, work: working },
-    });
+    // const newTodos = Object.assign({}, todos, {
+    //   [Date.now()]: { text, work: working },
+    // });
+    const newTodos = { ...todos, [Date.now()]: { text, work: working } };
     setTodos(newTodos);
     setText("");
   };
@@ -62,6 +64,13 @@ export default function App() {
           placeholder={working ? "Add a To Do" : "Add a Meeting"}
           style={styles.input}
         />
+        <ScrollView>
+          {Object.keys(todos).map((key) => (
+            <View style={styles.todo} key={key}>
+              <Text style={styles.todoText}>{todos[key].text}</Text>
+            </View>
+          ))}
+        </ScrollView>
       </View>
     </View>
   );
@@ -87,7 +96,19 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 30,
-    marginTop: 20,
+    marginVertical: 20,
     fontSize: 18,
+  },
+  todo: {
+    backgroundColor: theme.todoBg,
+    marginBottom: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    borderRadius: 15,
+  },
+  todoText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
