@@ -10,9 +10,12 @@ import {
   Pressable,
   TextInput,
   ScrollView,
+  Alert,
 } from "react-native";
 import { theme } from "./color";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Fontisto } from "@expo/vector-icons";
+
 const STORAGE_KEY = "@todos";
 
 export default function App() {
@@ -46,6 +49,22 @@ export default function App() {
     await saveTodos(newTodos);
     setText("");
   };
+  const deleteTodo = async (key) => {
+    Alert.alert("Delete To Do ", "Are you sure?", [
+      { text: "Cancel" },
+      {
+        text: "Delete",
+        onPress: () => {
+          const newTodos = { ...todos };
+          delete newTodos[key];
+          setTodos(newTodos);
+          saveTodos(newTodos);
+        },
+      },
+    ]);
+    return;
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
@@ -54,7 +73,7 @@ export default function App() {
           <Text
             style={{ ...styles.btnText, color: working ? "white" : theme.grey }}
           >
-            Work
+            ATLDC
           </Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={meeting}>
@@ -64,7 +83,7 @@ export default function App() {
               color: !working ? "white" : theme.grey,
             }}
           >
-            Meeting
+            GB
           </Text>
         </TouchableOpacity>
       </View>
@@ -82,6 +101,9 @@ export default function App() {
             todos[key].working === working ? (
               <View style={styles.todo} key={key}>
                 <Text style={styles.todoText}>{todos[key].text}</Text>
+                <TouchableOpacity onPress={() => deleteTodo(key)}>
+                  <Fontisto name="trash" size={18} color={theme.grey} />
+                </TouchableOpacity>
               </View>
             ) : null
           )}
@@ -120,6 +142,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     borderRadius: 15,
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   todoText: {
     color: "white",
